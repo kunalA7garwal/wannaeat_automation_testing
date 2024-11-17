@@ -1,0 +1,142 @@
+1 appium -v
+2 npm init wdio@latest .  visual and appium-install aur typscript test nahi janki pageobject,sometest yes
+  npm install --save-dev @wdio/appium-service  
+  npm i --save-dev appium
+  npm install @wdio/globals
+  npm install @wdio/allure-reporter --save-dev
+  npm install -g allure-commandline --save-dev
+  npm install wdio-video-reporter
+3 wdio conf.js configuration
+  
+  1 mobile connect and app push configuration 
+  capabilities: [
+    {
+      // capabilities for local Appium web tests on an Android Emulator
+      platformName: "Android",
+      // browserName: 'Chrome',
+      "appium:deviceName": "narzo 30 Pro 5G",
+      "appium:automationName": "UiAutomator2",
+      "appium:app": "app/app-release.apk",
+      "appium:noReset": true, // Preserve app state
+      "appium:fullReset": false, // Don't uninstall/reinstall the app
+    },
+  ],
+
+  2  which services we use like appium , cucumber etc
+  services: ['appium'],
+
+
+  3 test run configuration
+  specs: ["./test/specs/**/*.js"],
+
+note aftertest and reporters: last mai kare test ho jaaye after for client show ke liye
+and noreset wala bhi last ma comment karna hai mean comment rhna chaaiye new chalega like this
+// "appium:noReset": true, // Preserve app state
+      // "appium:fullReset": false, // Don't uninstall/reinstall the app
+
+
+
+  4 every when fail test after will take scrennshot
+     afterTest: async function (test, context, { error, result, duration, passed, retries }) {
+        if (!passed) {
+            await browser.takeScreenshot();
+        }
+    },
+
+  5 video + scrennshot + allure-result with report this videos folder for screenshot and video and allure-result request
+  response work
+import video from "wdio-video-reporter";
+
+    reporters: [
+    [
+      "allure",
+      {
+        outputDir: "allure-results", // Directory to store allure results
+        disableWebdriverStepsReporting: false,
+        disableWebdriverScreenshotsReporting: false,
+      },
+    ],
+    [
+      "video",
+      {
+        outputDir: "./videos", // Directory to store the video files
+        saveAllVideos: true, // Save video for all tests (optional)
+        videoSlowdownMultiplier: 3, // Slow down video to make it easier to review (optional)
+      },
+    ],
+  ],
+
+
+file should be look
+Element.js
+
+import { $ } from "@wdio/globals";
+
+// Date:- 16th November 2024, Author:- Kunal Agarwal
+
+// drag app
+export const drageApp = $("#username");
+
+
+login.js
+import { expect } from "@wdio/globals";
+import { drageApp } from "../pageobjects/AppElements.page";
+
+describe("Login Test", () => {
+  it("When user do the login", async () => {
+    await skipButton.click();
+    await skipButton.getText();
+  });
+});
+
+
+appium inspector will be connect like this and appiummainfile.docx mai how to install appium full setup hai 
+{
+  "platformName": "Android",
+  "appium:deviceName": "narzo 30 Pro 5G",
+  "appium:automationName": "UiAutomator2"
+}
+
+  
+
+
+most important points
+ //https://webdriver.io/docs/api/expect-webdriverio/ expect main
+    //accesbilityid > id > classname > xpath  so mostly use accessbilityeid phir xpath phir classname use kare
+    //note find by mai jo hai ushi selector ka use  kar sakhte hai inspector mai na ke value attribute
+    //accesbilityid direct
+    //id sytax -> id:android:id/button1
+    //classname direct
+    //xpath direct
+    //setvalue->replace existing content
+    //advalue-> add end of string
+    //isExisting ->text hai or nahi check ke liye
+    // without await appium use nahi kar sakthe hai
+    // page objects say structure maintain hota hai testing ka
+    // password par work nahi hoga secure hai wdirverio message validation lagna hoga logic base
+    //kabi ek test wrong say baaki sahi bhi nahi chalte hai
+    //trycatch nahi error throw karna hai
+    // accessbilityeid mai space wali ho toh xpath use kare 
+    //app every time push begining say hota hai fresh app jaise 
+    // sahi timing bahut important hai therofore use pause so 
+ pause use kare and 
+   mochaOpts: {
+    ui: "bdd",
+    timeout: 99999999,
+  }, kar dena  3 to 4 years time for test execution
+
+  note jo findby mai jo bhi hai ussay mileghi hi milega khaas kar xpath every mai hoga woh rhta hi hai
+  and net off par cannnot interction blue notificaiton milta hai warning xpath ke par dyan nahi dena hai
+
+
+  last mai kya karna hai all test ke baad
+  1 noreset ko comment kare dono ko hi new say show
+  2 allure generate allure-results --clean  allure report ke regenerate karne ke liye by changeing code
+  3 test run karna after videos and allure-results create honge 
+  4 allure open  say allurereport url on karke show karne ke liye
+
+
+  note after koi bhi change ke baad videos and allure-result delete kare after 2 and 4 command run kare one by one 
+  so simple summary:-
+  videos allure-result delete -> run test cases after will be create allure-results->
+  allure generate allure-results --clean allure report folder create->allure open for open url

@@ -1,0 +1,21 @@
+{
+    "email": "kunalimg0@gmail.com",
+    "password": "Wanna@123",
+    "homeDishName": "Side Salad",
+    "homeDishPrice": "$3.50",
+    "homeChefName": "Mill South",
+    "homeOrderBy": "18th November",
+    "homeDeliveryWindow": "4pm - 7pm",
+    "homeDistanceWindow": "Delivery",
+    "homeLunchDinnerChecker": "Dinner",
+    "homeSubTotal": "$3.50",
+    "homeSubSmallOrderCharge": "$11.50",
+    "homeSubDeliveryFee": "$0.99",
+    "homeSubTax": "$1.60",
+    "homeTotalPrice": "$17.59",
+    "homeWeekChecker": "Sunday",
+    "homeDishSmallOrderCharge": "$11.50",
+    "homeDishQty": "1",
+    "homeOrderInstructions": ""
+  }
+  
