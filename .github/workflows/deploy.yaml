@@ -8,69 +8,28 @@ on:
 
 jobs:
   build_and_deploy:
-    runs-on: ubuntu-latest
-    # runs-on: self-hosted use own machine resources,wifi,securtiy and upper mai cloud ke bilkul new os linux ka
-
+    runs-on: self-hosted  # Apne machine ka use karega
 
     steps:
+      # Step 1: Checkout the repository for  GitHub Actions ko aapke repository ka access
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-
+      # Step 2: Install dependencies (If needed, you can skip if dependencies are already in your system)
       - name: Install dependencies
         run: npm install
 
-      # Step to install Android SDK
-      - name: Install Android SDK
-        run: |
-          sudo apt update
-          sudo apt install -y openjdk-11-jdk
-          sudo apt install -y wget unzip
-          # Install Android SDK command line tools
-          wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-          unzip commandlinetools-linux-8512546_latest.zip -d $HOME/android-sdk
-          # Install SDK packages (platform-tools, build-tools, etc.)
-          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
-          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "build-tools;33.0.0" "platforms;android-33"
-
-      # Add platform-tools to PATH so adb is available
-      - name: Set up ADB in PATH
-        run: echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
-
-      # Set environment variables
-      - name: Set ANDROID_HOME environment variable
-        run: echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-
-      # Step to start Appium server
+      # Step 3: Start Appium server (ensure it's installed on the self-hosted runner)
       - name: Start Appium Server
         run: |
           npm install -g appium
           appium --address 127.0.0.1 --port 4723 &
 
-      # Step to start ADB server
-      - name: Start ADB server
-        run: |
-          adb start-server  # Start adb server if not running
-
-      # Step to pair Android device over Wi-Fi
-      - name: Pair Android device over Wi-Fi
-        run: |
-          adb pair 192.168.1.12:46085  # Replace with the IP and port of your device's pairing request
-          # Provide the pairing code when prompted (e.g., 260388)
-          echo "260388" | adb pair 192.168.1.12:46085
-
-      # Step to connect to Android device via ADB over Wi-Fi
-      - name: Connect to Android device over Wi-Fi
-        run: |
-          adb connect 192.168.1.12:38807  # Replace with the correct IP and port of the device
-
+      # Step 4: Run tests using WebDriverIO
       - name: Run tests
         run: npx wdio run ./wdio.conf.js
 
+      # Step 5: Generate Allure report and open it
       - name: Generate Allure Report
         run: |
           allure generate allure-results --clean
