@@ -35,6 +35,10 @@ jobs:
           yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
           yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "build-tools;33.0.0" "platforms;android-33"
 
+      # Add platform-tools to PATH so adb is available
+      - name: Set up ADB in PATH
+        run: echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
+
       # Set environment variables
       - name: Set ANDROID_HOME environment variable
         run: echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
