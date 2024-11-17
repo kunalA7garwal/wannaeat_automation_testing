@@ -8,28 +8,68 @@ on:
 
 jobs:
   build_and_deploy:
-    runs-on: self-hosted  # Apne machine ka use karega
+    runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository for  GitHub Actions ko aapke repository ka access
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Install dependencies (If needed, you can skip if dependencies are already in your system)
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
       - name: Install dependencies
         run: npm install
 
-      # Step 3: Start Appium server (ensure it's installed on the self-hosted runner)
+      # Step to install Android SDK
+      - name: Install Android SDK
+        run: |
+          sudo apt update
+          sudo apt install -y openjdk-11-jdk
+          sudo apt install -y wget unzip
+          # Install Android SDK command line tools
+          wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+          unzip commandlinetools-linux-8512546_latest.zip -d $HOME/android-sdk
+          # Install SDK packages (platform-tools, build-tools, etc.)
+          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
+          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "build-tools;33.0.0" "platforms;android-33"
+
+      # Add platform-tools to PATH so adb is available
+      - name: Set up ADB in PATH
+        run: echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
+
+      # Set environment variables
+      - name: Set ANDROID_HOME environment variable
+        run: echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+
+      # Step to start Appium server
       - name: Start Appium Server
         run: |
           npm install -g appium
           appium --address 127.0.0.1 --port 4723 &
 
-      # Step 4: Run tests using WebDriverIO
+      # Step to expose the ADB port using ngrok
+      - name: Install ngrok and expose ADB port
+        run: |
+          # Install ngrok (if not already installed)
+          wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+          unzip ngrok-stable-linux-amd64.zip
+          ./ngrok authtoken <your-ngrok-auth-token>  # Replace with your ngrok authtoken
+          # Expose the ADB port using ngrok
+          ./ngrok tcp 38807 &
+
+      # Connect to Real Device via ngrok ADB
+      - name: Connect to Real Device via ngrok ADB
+        run: |
+          adb connect tcp://0.tcp.in.ngrok.io:15573  # Replace XXXXX with the actual ngrok port from the output
+          adb devices
+
+      # Run tests using WebDriverIO (or any other test framework)
       - name: Run tests
         run: npx wdio run ./wdio.conf.js
 
-      # Step 5: Generate Allure report and open it
+      # Generate Allure Report (if used)
       - name: Generate Allure Report
         run: |
           allure generate allure-results --clean
