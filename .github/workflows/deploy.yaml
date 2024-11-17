@@ -34,7 +34,7 @@ jobs:
           # Install SDK packages (platform-tools, build-tools, etc.)
           yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
           yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "build-tools;33.0.0" "platforms;android-33"
-          
+
       # Set environment variables
       - name: Set ANDROID_HOME environment variable
         run: echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
@@ -44,6 +44,12 @@ jobs:
         run: |
           npm install -g appium
           appium --address 127.0.0.1 --port 4723 &
+
+      # Step to connect to Android device over Wi-Fi
+      - name: Connect to Android device over Wi-Fi
+        run: |
+          adb start-server  # Start adb server if not running
+          adb connect 192.168.1.12:5555  # Replace with the IP address of your device
 
       - name: Run tests
         run: npx wdio run ./wdio.conf.js
