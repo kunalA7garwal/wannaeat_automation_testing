@@ -22,6 +22,24 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      # Step to install Android SDK
+      - name: Install Android SDK
+        run: |
+          sudo apt update
+          sudo apt install -y openjdk-11-jdk
+          sudo apt install -y wget unzip
+          # Install Android SDK command line tools
+          wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+          unzip commandlinetools-linux-8512546_latest.zip -d $HOME/android-sdk
+          # Install SDK packages (platform-tools, build-tools, etc.)
+          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk --licenses
+          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "build-tools;33.0.0" "platforms;android-33"
+          
+      # Set environment variables
+      - name: Set ANDROID_HOME environment variable
+        run: echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+
+      # Step to start Appium server
       - name: Start Appium Server
         run: |
           npm install -g appium
