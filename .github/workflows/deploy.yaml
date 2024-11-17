@@ -9,6 +9,9 @@ on:
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
+    # runs-on: self-hosted 
+    # use own machine mean pc nahi like aws or another resources,wifi,securtiy and upper mai cloud ke bilkul new os linux ka
+
 
     steps:
       - name: Checkout repository
@@ -49,27 +52,15 @@ jobs:
           npm install -g appium
           appium --address 127.0.0.1 --port 4723 &
 
-      # Step to expose the ADB port using ngrok
-      - name: Install ngrok and expose ADB port
-        run: |
-          # Install ngrok (if not already installed)
-          wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
-          unzip ngrok-stable-linux-amd64.zip
-          ./ngrok authtoken <your-ngrok-auth-token>  # Replace with your ngrok authtoken
-          # Expose the ADB port using ngrok
-          ./ngrok tcp 38807 &
-
-      # Connect to Real Device via ngrok ADB
+            # Connect to Real Device via ngrok ADB
       - name: Connect to Real Device via ngrok ADB
         run: |
-          adb connect tcp://0.tcp.in.ngrok.io:15573  # Replace XXXXX with the actual ngrok port from the output
+          adb connect tcp://0.tcp.in.ngrok.io:15573 
           adb devices
 
-      # Run tests using WebDriverIO (or any other test framework)
       - name: Run tests
         run: npx wdio run ./wdio.conf.js
 
-      # Generate Allure Report (if used)
       - name: Generate Allure Report
         run: |
           allure generate allure-results --clean
