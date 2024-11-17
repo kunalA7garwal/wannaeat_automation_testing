@@ -55,7 +55,7 @@ jobs:
             # Connect to Real Device via ngrok ADB
       - name: Connect to Real Device via ngrok ADB
         run: |
-          adb connect tcp://0.tcp.in.ngrok.io:11843 
+          adb connect adb connect 0.tcp.ngrok.io:11843 
           adb devices
 
       - name: Run tests
